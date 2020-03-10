@@ -298,7 +298,7 @@ where
         filter: Option<api::r0::sync::sync_events::Filter>,
         since: Option<String>,
         set_presence: bool,
-        timeout: Option<js_int::UInt>
+        timeout: Option<js_int::UInt>,
     ) -> impl Stream<Item = Result<api::r0::sync::sync_events::IncomingResponse, Error>>
            + TryStream<Ok = api::r0::sync::sync_events::IncomingResponse, Error = Error> {
         use api::r0::sync::sync_events;
