@@ -23,8 +23,12 @@ async fn log_messages(
     // TODO: This is a horrible way to obtain an initial next_batch token that generates way too
     //       much server load and network traffic. Fix this!
 
-    //                                                           vvvvvvvv Skip initial sync reponse
-    let mut sync_stream = Box::pin(client.sync(None, None, false).skip(1));
+    //                                                                                                    vvvvvvvv Skip initial sync reponse
+    let mut sync_stream = Box::pin(
+        client
+            .sync(None, None, false, Some(js_int::UInt::new(30000).unwrap()))
+            .skip(1),
+    );
 
     while let Some(res) = sync_stream.try_next().await? {
         // Only look at rooms the user hasn't left yet

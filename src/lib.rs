@@ -34,7 +34,7 @@
 //! # let homeserver_url = "https://example.com".parse().unwrap();
 //! # let client = Client::https(homeserver_url, None);
 //! # async {
-//! let mut sync_stream = Box::pin(client.sync(None, None, true));
+//! let mut sync_stream = Box::pin(client.sync(None, None, true, Some(js_int::UInt::new(30000).unwrap())));
 //! while let Some(response) = sync_stream.try_next().await? {
 //!     // Do something with the data in the response...
 //! }
