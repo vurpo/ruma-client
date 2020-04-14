@@ -30,11 +30,14 @@
 //!
 //! ```no_run
 //! # use futures_util::stream::{StreamExt as _, TryStreamExt as _};
-//! # use ruma_client::Client;
+//! # use ruma_client::{api::r0::sync::sync_events::SetPresence, Client};
 //! # let homeserver_url = "https://example.com".parse().unwrap();
 //! # let client = Client::https(homeserver_url, None);
 //! # async {
-//! let mut sync_stream = Box::pin(client.sync(None, None, true, Some(js_int::UInt::new(30000).unwrap())));
+//! let mut sync_stream = Box::pin(
+//!     client
+//!         .sync(None, None, SetPresence::Online, Some(js_int::UInt::new(30000).unwrap()))
+//! );
 //! while let Some(response) = sync_stream.try_next().await? {
 //!     // Do something with the data in the response...
 //! }
@@ -297,19 +300,13 @@ where
         &self,
         filter: Option<api::r0::sync::sync_events::Filter>,
         since: Option<String>,
-        set_presence: bool,
+        set_presence: api::r0::sync::sync_events::SetPresence,
         timeout: Option<js_int::UInt>,
     ) -> impl Stream<Item = Result<api::r0::sync::sync_events::IncomingResponse, Error>>
            + TryStream<Ok = api::r0::sync::sync_events::IncomingResponse, Error = Error> {
         use api::r0::sync::sync_events;
 
         let client = self.clone();
-        let set_presence = if set_presence {
-            None
-        } else {
-            Some(sync_events::SetPresence::Offline)
-        };
-
         stream::try_unfold(since, move |since| {
             let client = client.clone();
             let filter = filter.clone();
@@ -319,7 +316,7 @@ where
                     .request(sync_events::Request {
                         filter,
                         since,
-                        full_state: None,
+                        full_state: false,
                         set_presence,
                         timeout,
                     })
@@ -332,7 +329,7 @@ where
     }
 
     /// Makes a request to a Matrix API endpoint.
-    pub fn request<Request: Endpoint>(
+    pub fn request<Request: Endpoint<ResponseError = api::Error>>(
         &self,
         request: Request,
     ) -> impl Future<Output = Result<<Request::Response as Outgoing>::Incoming, Error>>
@@ -341,7 +338,7 @@ where
     where
         Request::Incoming: TryFrom<http::Request<Vec<u8>>, Error = FromHttpRequestError>,
         <Request::Response as Outgoing>::Incoming:
-            TryFrom<http::Response<Vec<u8>>, Error = FromHttpResponseError>,
+            TryFrom<http::Response<Vec<u8>>, Error = FromHttpResponseError<api::Error>>,
     {
         let client = self.0.clone();
 

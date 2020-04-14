@@ -3,6 +3,7 @@ use std::{env, process::exit};
 use futures_util::stream::{StreamExt as _, TryStreamExt as _};
 use ruma_client::{
     self,
+    api::r0::sync::sync_events::SetPresence,
     events::{
         collections::all::RoomEvent,
         room::message::{MessageEvent, MessageEventContent, TextMessageEventContent},
@@ -25,7 +26,7 @@ async fn log_messages(
 
     let mut sync_stream = Box::pin(
         client
-            .sync(None, None, false, Some(js_int::UInt::new(30000).unwrap()))
+            .sync(None, None, SetPresence::Online, Some(js_int::UInt::new(30000).unwrap()))
             .skip(1),
     );
 
