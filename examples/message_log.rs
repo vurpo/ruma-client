@@ -26,7 +26,7 @@ async fn log_messages(
 
     let mut sync_stream = Box::pin(
         client
-            .sync(None, None, SetPresence::Online, Some(js_int::UInt::new(30000).unwrap()))
+            .sync(None, None, SetPresence::Online, Some(js_int::UInt::from(30000u32)))
             .skip(1),
     );
 

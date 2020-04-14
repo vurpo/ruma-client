@@ -36,7 +36,7 @@
 //! # async {
 //! let mut sync_stream = Box::pin(
 //!     client
-//!         .sync(None, None, SetPresence::Online, Some(js_int::UInt::new(30000).unwrap()))
+//!         .sync(None, None, SetPresence::Online, Some(js_int::UInt::from(30000u32)))
 //! );
 //! while let Some(response) = sync_stream.try_next().await? {
 //!     // Do something with the data in the response...
